@@ -1,51 +1,10 @@
-const levels = ['Fresh', 'In Training', 'Rookie', 'Champion', 'Ultimate', 'Armor', 'Mega'];
-let currentLevelIndex = 0;
+var res = fetch("https://digimon-api.vercel.app/api/digimon");
+res.then((data) => data.json()).then((data1) => displayDigimon(data1));
 
-const apiUrl = "https://digimon-api.vercel.app/api/digimon";
-let digimonData = [];
-
-const gameContainer = document.getElementById('game-container');
-const digimonCard = document.getElementById('digimon-card');
-const evolveButton = document.getElementById('evolve-button');
-
-async function fetchDigimonData() {
-    try {
-        const response = await fetch(apiUrl);
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        digimonData = await response.json();
-        displayCurrentDigimon();
-    } catch (error) {
-        console.error('Error fetching Digimon data:', error);
-    }
-}
-
-function getCurrentDigimon() {
-    return digimonData.find(digimon => digimon.level === levels[currentLevelIndex]);
-}
-
-function displayCurrentDigimon() {
-    const digimon = getCurrentDigimon();
-    if (!digimon) return;
-
-    digimonCard.innerHTML = `
-        <div class="col-md-6">
-            <div class="card ${getCardClassByLevel(digimon.level)}">
-                <img src="${digimon.img}" class="card-img-top" alt="${digimon.name}">
-                <div class="card-body">
-                    <h5 class="card-title">${digimon.name}</h5>
-                    <p class="card-text">Level: ${digimon.level}</p>
-                </div>
-            </div>
-        </div>
-    `;
-
-    if (currentLevelIndex === levels.length - 1) {
-        evolveButton.disabled = true;
-        evolveButton.textContent = "Congratulations! You've reached Mega level!";
-    }
-}
+var container = document.createElement("div");
+container.className = "container";
+var row = document.createElement("div");
+row.className = "row";
 
 function getCardClassByLevel(level) {
     switch (level) {
@@ -59,8 +18,6 @@ function getCardClassByLevel(level) {
             return 'bg-info text-white';
         case 'Ultimate':
             return 'bg-danger text-white';
-        case 'Armor':
-            return 'bg-secondary text-white';
         case 'Mega':
             return 'bg-dark text-white';
         default:
@@ -68,13 +25,22 @@ function getCardClassByLevel(level) {
     }
 }
 
-evolveButton.addEventListener('click', () => {
-    if (Math.random() > 0.5) { // 50% chance of successful evolution
-        currentLevelIndex++;
-        displayCurrentDigimon();
-    } else {
-        alert("Evolution failed! Try again.");
+function displayDigimon(data1) {
+    for (let i = 0; i < data1.length; i++) {
+        var col = document.createElement("div");
+        col.className = "col-lg-4 mb-4";
+        var cardClass = getCardClassByLevel(data1[i].level);
+        col.innerHTML = `
+            <div class="card h-100 ${cardClass}">
+                <img src="${data1[i].img}" class="card-img-top" alt="${data1[i].name}">
+                <div class="card-body">
+                    <h5 class="card-title">${data1[i].name}</h5>
+                    <p class="card-text">Level: ${data1[i].level}</p>
+                </div>
+            </div>
+        `;
+        row.appendChild(col);
     }
-});
-
-fetchDigimonData();
+    container.appendChild(row);
+    document.body.appendChild(container);
+}
